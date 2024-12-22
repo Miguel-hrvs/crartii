@@ -1,8 +1,9 @@
 module Artii
   module Figlet
     class Smusher
-      def initialize(font)
-        @font = font
+      @font : Artii::Figlet::Font
+
+      def initialize(@font : Artii::Figlet::Font)
       end
 
       def [](result)
@@ -24,13 +25,11 @@ module Artii
         @pattern ||= /([^#{@font.hard_blank}\x00\s])\x00([^#{@font.hard_blank}\x00\s])/
       end
 
-      def symbols
-        @@symbols ||= {
-          24 => "|/\\[]{}()<>",
-           8 => {"[" => "]", "]" => "[", "{" => "}", "}" => "{", "(" => ")", ")" => "("},
-          16 => {"/\\" => "|", "\\/" => "Y", "><" => "X"},
-        }
-      end
+      @@symbols = {
+        24 => "|/\\[]{}()<>",
+         8 => {"[" => "]", "]" => "[", "{" => "}", "}" => "{", "(" => ")", ")" => "("},
+        16 => {"/\\" => "|", "\\/" => "Y", "><" => "X"},
+      }
 
       def old_layout?(n)
         @font.old_layout & n > 0
@@ -40,19 +39,19 @@ module Artii
         combined = a + b
 
         if old_layout?(1) && a == b
-          return true, a
-        elsif old_layout?(2) && ("_" == a && symbols[24].includes?(b) || "_" == b && symbols[24].includes?(a))
-          return true, a
-        elsif old_layout?(4) && ((left = symbols[24].index(a)) && (right = symbols[24].index(b)))
-          return true, (right > left ? b : a)
-        elsif old_layout?(8) && (symbols[8].has_key?(b) && symbols[8][b] == a)
-          return true, "|"
-        elsif old_layout?(16) && symbols[16].has_key?(combined)
-          return true, symbols[16][combined]
+          return {true, a}
+        elsif old_layout?(2) && ("_" == a && @@symbols[24].includes?(b) || "_" == b && @@symbols[24].includes?(a))
+          return {true, a}
+        elsif old_layout?(4) && ((left = @@symbols[24].index(a)) && (right = @@symbols[24].index(b)))
+          return {true, (right > left ? b : a)}
+        elsif old_layout?(8) && @@symbols[8][b] == a
+          return {true, "|"}
+        elsif old_layout?(16) && @@symbols[16][combined]?
+          return {true, @@symbols[16][combined]}
         elsif old_layout?(32) && (a == b && @font.hard_blank == a)
-          return true, @font.hard_blank
+          return {true, @font.hard_blank}
         else
-          return s, "#{a}\00#{b}"
+          return {s, "#{a}\00#{b}"}
         end
       end
     end

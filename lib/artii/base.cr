@@ -27,20 +27,14 @@ module Artii
     def font_name
       @faces[@options[:font]]
     end
-    
-    def output(text : String)
-      puts "Rendering text in ASCII art using font: #{font_name}"
-      # Add actual ASCII art rendering logic here
-      puts text
-    end
 
     def font_file(name)
       "#{FONTPATH}/#{@faces[name]}"
     end
 
-    def asciify(string)
+    def output(text : String)
       figlet = Artii::Figlet::Typesetter.new(@font)
-      figlet[string]
+      figlet[text]
     end
 
     # alias Output = Asciify
